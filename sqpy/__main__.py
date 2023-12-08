@@ -329,7 +329,7 @@ class SlurmViewer:
         while True:
             stdscr.clear()
             height, width = stdscr.getmaxyx()
-
+ 
             self.fetch_data()
             self.draw_table(stdscr, current_row)
             self.draw_instructions_bar(stdscr)
