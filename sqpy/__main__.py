@@ -1,6 +1,6 @@
 import curses
-import subprocess
 import re
+import subprocess
 
 
 class DialogWindow:
@@ -147,6 +147,23 @@ class ScancelDialog(DialogWindow):
 
 
 class SlurmViewer:
+    """
+    A class for viewing and interacting with Slurm job information.
+
+    Attributes:
+        data (list): A list of dictionaries representing the job data.
+        top_row (int): The index of the top row to display in the table.
+
+    Methods:
+        __init__(): Initializes a new instance of the class.
+        fetch_data(): Fetches data from the 'squeue' command and parses it into a list of dictionaries.
+        draw_instructions_bar(stdscr): Draws the instructions bar at the bottom of the screen.
+        calculate_column_widths(): Calculates the maximum width for each column in the data.
+        draw_table(stdscr, current_row): Draws a table on the given curses window.
+        show_message(stdscr, message): Displays a message in a centered box on the screen.
+        run(stdscr): Runs the main loop of the application.
+    """
+
     def __init__(self):
         """
         Initializes a new instance of the class.
@@ -194,20 +211,6 @@ class SlurmViewer:
         instructions = "Ctrl+K: Kill Job  |  Ctrl+R: Refresh |  Q: Quit"
         height, width = stdscr.getmaxyx()
         stdscr.addstr(height - 1, 0, instructions[:width], curses.A_REVERSE)
-
-    def calculate_column_widths(self):
-        """
-        Calculate the maximum width for each column in the data.
-
-        Returns:
-            column_widths (dict): A dictionary mapping each column header to its maximum width.
-        """
-        column_widths = {}
-        headers = self.data[0].keys()
-        for header in headers:
-            max_width = max(len(header), max(len(row[header]) for row in self.data))
-            column_widths[header] = max_width
-        return column_widths
 
     def calculate_column_widths(self, headers, total_width):
         """
@@ -260,7 +263,7 @@ class SlurmViewer:
             stdscr.addstr(0, x_pos, header.ljust(column_widths[header]))
             x_pos += column_widths[header] + 1
 
-        for i, row in enumerate(self.data[self.top_row:self.top_row + height - 2]):
+        for i, row in enumerate(self.data[self.top_row : self.top_row + height - 2]):
             x_pos = 0
             row_text = "".join(
                 row[header].ljust(column_widths[header]) for header in headers
@@ -344,12 +347,14 @@ class SlurmViewer:
                     if jobid:
                         PopupPrint(stdscr, "Ctrl+L Detected").show()
 
-                elif key == 11:  #  Ctrl+K
-                    if self.data:
-                        jobid = self.data[current_row].get("JOBID", None)
-                        jobname = self.data[current_row].get("NAME", None)
-                        if jobid:
-                            ScancelDialog(stdscr, jobid, jobname).show()
+            elif key == 11:  # Ctrl+K
+                if self.data:
+                    jobid = self.data[current_row].get("JOBID", None)
+                    jobname = self.data[current_row].get("NAME", None)
+                    if jobid:
+                        # PopupPrint(stdscr, "Ctrl+K Detected").show()
+                        # Fix: Modify the comment to start with '# '
+                        ScancelDialog(stdscr, jobid, jobname).show()
 
 
 if __name__ == "__main__":
