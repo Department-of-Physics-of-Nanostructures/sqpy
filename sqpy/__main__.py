@@ -7,7 +7,15 @@ class DialogWindow:
     """Base class for dialog windows in curses."""
 
     def __init__(self, stdscr, height, width, start_y, start_x):
-        """Initialize a new dialog window."""
+        """Initialize a new dialog window.
+
+        Args:
+            stdscr (curses.window): The curses window object.
+            height (int): The height of the window.
+            width (int): The width of the window.
+            start_y (int): The starting y-coordinate of the window.
+            start_x (int): The starting x-coordinate of the window.
+        """
         self.stdscr = stdscr
         self.height = height
         self.width = width
@@ -34,7 +42,12 @@ class PopupPrint(DialogWindow):
     """Class for displaying simple popup messages."""
 
     def __init__(self, stdscr, message):
-        """Initialize a popup print window with a message."""
+        """Initialize a popup print window with a message.
+
+        Args:
+            stdscr (curses.window): The curses window object.
+            message (str): The message to be displayed in the popup window.
+        """
         height, width = stdscr.getmaxyx()
         msg_width = min(60, width - 4)
         msg_height = 5
@@ -52,7 +65,13 @@ class ScancelDialog(DialogWindow):
     """Class for displaying a confirmation dialog to cancel a job."""
 
     def __init__(self, stdscr, jobid, jobname):
-        """Initialize a scancel dialog window."""
+        """Initialize a scancel dialog window.
+
+        Args:
+            stdscr (curses.window): The curses window object.
+            jobid (str): The ID of the job to be canceled.
+            jobname (str): The name of the job to be canceled.
+        """
         self.stdscr = stdscr
         height, width = self.stdscr.getmaxyx()
         msg_width = min(60, width - 4)
@@ -129,10 +148,19 @@ class ScancelDialog(DialogWindow):
 
 class SlurmViewer:
     def __init__(self):
+        """
+        Initializes a new instance of the class.
+        """
         self.data = []
         self.top_row = 0
 
     def fetch_data(self):
+        """
+        Fetches data from the 'squeue' command and parses it into a list of dictionaries.
+
+        Returns:
+            None
+        """
         command = [
             "squeue",
             "-o",
@@ -154,11 +182,26 @@ class SlurmViewer:
         self.data = parsed_data
 
     def draw_instructions_bar(self, stdscr):
+        """
+        Draw the instructions bar at the bottom of the screen.
+
+        Args:
+            stdscr (curses.window): The curses window object.
+
+        Returns:
+            None
+        """
         instructions = "Ctrl+K: Kill Job  |  Ctrl+R: Refresh |  Q: Quit"
         height, width = stdscr.getmaxyx()
         stdscr.addstr(height - 1, 0, instructions[:width], curses.A_REVERSE)
 
     def calculate_column_widths(self):
+        """
+        Calculate the maximum width for each column in the data.
+
+        Returns:
+            column_widths (dict): A dictionary mapping each column header to its maximum width.
+        """
         column_widths = {}
         headers = self.data[0].keys()
         for header in headers:
@@ -167,6 +210,16 @@ class SlurmViewer:
         return column_widths
 
     def calculate_column_widths(self, headers, total_width):
+        """
+        Calculates the minimum widths for each column based on the headers and data.
+
+        Args:
+            headers (list): The list of column headers.
+            total_width (int): The total width available for the columns.
+
+        Returns:
+            dict: A dictionary mapping each header to its corresponding minimum width.
+        """
         min_widths = {
             header: max(len(header), max(len(str(row[header])) for row in self.data))
             for header in headers
@@ -183,6 +236,16 @@ class SlurmViewer:
         return min_widths
 
     def draw_table(self, stdscr, current_row):
+        """
+        Draw a table on the given curses window.
+
+        Args:
+            stdscr (curses.window): The curses window to draw the table on.
+            current_row (int): The index of the current row.
+
+        Returns:
+            None
+        """
         if not self.data:
             return
 
@@ -197,7 +260,7 @@ class SlurmViewer:
             stdscr.addstr(0, x_pos, header.ljust(column_widths[header]))
             x_pos += column_widths[header] + 1
 
-        for i, row in enumerate(self.data[self.top_row : self.top_row + height - 2]):
+        for i, row in enumerate(self.data[self.top_row:self.top_row + height - 2]):
             x_pos = 0
             row_text = "".join(
                 row[header].ljust(column_widths[header]) for header in headers
@@ -208,6 +271,16 @@ class SlurmViewer:
                 stdscr.addstr(i + 1, 0, row_text[: width - 1])
 
     def show_message(self, stdscr, message):
+        """
+        Display a message in a centered box on the screen.
+
+        Args:
+            stdscr (curses.window): The curses window object.
+            message (str): The message to be displayed.
+
+        Returns:
+            None
+        """
         height, width = stdscr.getmaxyx()
         msg_width = min(60, width - 4)
         msg_height = 5
@@ -224,6 +297,15 @@ class SlurmViewer:
         del win
 
     def run(self, stdscr):
+        """
+        Run the main loop of the application.
+
+        Args:
+            stdscr (curses.window): The curses window object.
+
+        Returns:
+            None
+        """
         curses.start_color()
         curses.use_default_colors()
         for i in range(0, curses.COLORS):
@@ -262,14 +344,12 @@ class SlurmViewer:
                     if jobid:
                         PopupPrint(stdscr, "Ctrl+L Detected").show()
 
-            elif key == 11:  #  Ctrl+K
-                if self.data:
-                    jobid = self.data[current_row].get("JOBID", None)
-                    jobname = self.data[current_row].get("NAME", None)
-                    if jobid:
-                        confirm_dialog = ScancelDialog(stdscr, jobid, jobname)
-                        confirm_dialog.add_content()
-                        confirmed = confirm_dialog.show()
+                elif key == 11:  #  Ctrl+K
+                    if self.data:
+                        jobid = self.data[current_row].get("JOBID", None)
+                        jobname = self.data[current_row].get("NAME", None)
+                        if jobid:
+                            ScancelDialog(stdscr, jobid, jobname).show()
 
 
 if __name__ == "__main__":
