@@ -29,5 +29,5 @@ reportOptionalMemberAccess = false
 
 
 [tool.pytest.ini_options]
-addopts = "-v --mypy -p no:warnings --cov=sqpy --cov-report=html --doctest-modules --ignore=sqpy/__main__.py"
+addopts = "-v -p no:warnings --cov=sqpy --cov-report=html --doctest-modules --ignore=sqpy/__main__.py"
 

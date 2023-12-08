@@ -41,8 +41,8 @@ class DialogWindow:
         """Display the window and wait for user input."""
         self.add_content()
         self.win.refresh()
-        self.win.getch()  # Oczekiwanie na dowolny klawisz
-        del self.win  # Usunięcie okna
+        self.win.getch()  
+        del self.win  
 
 
 class PopupPrint(DialogWindow):
@@ -91,12 +91,12 @@ class ScancelDialog(DialogWindow):
         self.jobname = jobname
 
         self.options = ["Yes", "No"]
-        self.selected_option = 0  # Indeks wybranej opcji
+        self.selected_option = 0 
 
     def add_content(self):
         """Add confirmation question to the window."""
         question = f"Are you sure to cancel {self.jobid} - {self.jobname}?"
-        self.win.addstr(2, 2, question[: self.width - 4])  # Dodajemy pytanie do okna
+        self.win.addstr(2, 2, question[: self.width - 4])  
         self._draw_options()
 
     def _draw_options(self):
