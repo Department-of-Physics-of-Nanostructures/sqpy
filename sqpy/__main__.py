@@ -6,7 +6,14 @@ import subprocess
 class DialogWindow:
     """Base class for dialog windows in curses."""
 
-    def __init__(self, stdscr, height, width, start_y, start_x):
+    def __init__(
+        self,
+        stdscr,
+        height: int,
+        width: int,
+        start_y: int,
+        start_x: int
+    ) -> None:
         """Initialize a new dialog window.
 
         Args:
@@ -263,13 +270,15 @@ class SlurmViewer:
             stdscr.addstr(0, x_pos, header.ljust(column_widths[header]))
             x_pos += column_widths[header] + 1
 
-        for i, row in enumerate(self.data[self.top_row : self.top_row + height - 2]):
+        for i, row in enumerate(self.data[self.top_row:self.top_row+height-2]):
             x_pos = 0
             row_text = "".join(
                 row[header].ljust(column_widths[header]) for header in headers
             )
             if i + self.top_row == current_row:
-                stdscr.addstr(i + 1, 0, row_text[: width - 1], curses.color_pair(3))
+                stdscr.addstr(
+                    i + 1, 0, row_text[: width - 1], curses.color_pair(3)
+                )
             else:
                 stdscr.addstr(i + 1, 0, row_text[: width - 1])
 

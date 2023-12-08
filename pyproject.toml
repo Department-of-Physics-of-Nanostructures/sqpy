@@ -26,7 +26,7 @@ dev = [
 ]
 
 [tool.mypy]
-mypy_path = "pyzfn"
+mypy_path = "sqpy"
 check_untyped_defs = true
 disallow_any_generics = true
 ignore_missing_imports = true
