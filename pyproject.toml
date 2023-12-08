@@ -10,16 +10,13 @@ name = "sqpy"
 version = "0.0.1"
 authors = [
     { name = "Mateusz Zelent", email = "mateusz.zeletn@amu.edu.pl" },
-    { name = "Matehieu Moalic", email = "matehiu.moalic@amu.edu.pl" }
+    { name = "Mathieu Moalic", email = "mathieu.moalic@amu.edu.pl" }
 ]
 requires-python = ">=3.8"
 dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "isort",
-    "mypy",
     "pip-tools",
     "pre-commit",
     "pytest",
@@ -29,20 +26,26 @@ dev = [
 ]
 
 [tool.mypy]
-disallow_any_explicit = true
+mypy_path = "pyzfn"
+check_untyped_defs = true
 disallow_any_generics = true
+ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
 warn_unreachable = true
-warn_unused_ignores = true
-disallow_untyped_defs = true
-exclude = [".venv/"]
+warn_unused_configs = true
+no_implicit_reexport = true
+disallow_untyped_calls = false
+strict = true
+plugins = "numpy.typing.mypy_plugin"
 
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
+[tool.pyright]
+reportOptionalMemberAccess = false
 
-[tool.isort]
-profile = "black"
 
 [tool.pytest.ini_options]
-addopts = "-v --mypy -p no:warnings --cov=myproject --cov-report=html --doctest-modules --ignore=myproject/__main__.py"
+addopts = "-v --mypy -p no:warnings --cov=sqpy --cov-report=html --doctest-modules --ignore=sqpy/__main__.py"
 
