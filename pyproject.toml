@@ -1,33 +1,40 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools>=42.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+
 [tool.setuptools.packages.find]
-exclude = ["htmlcov"] # Exclude the coverage report file from setuptools package finder
+exclude = ["htmlcov"]
 
 [project]
-name = "sqpy"
-version = "0.0.1"
-authors = [
-    { name = "Mateusz Zelent", email = "mateusz.zeletn@amu.edu.pl" },
-    { name = "Mathieu Moalic", email = "mathieu.moalic@amu.edu.pl" }
-]
-requires-python = ">=3.8"
+authors = [{ name = "Mateusz Zelent", email = "mateusz.zeletn@amu.edu.pl" }]
 dependencies = []
+name = "sqpy"
+requires-python = ">=3.8"
+version = "0.0.1"
 
 [project.optional-dependencies]
-dev = [
-    "pip-tools",
-    "pre-commit",
-    "pytest",
-    "pytest-cov",
-    "pytest-mock"
-]
+dev = ["pip-tools", "pre-commit", "pytest", "pytest-cov", "pytest-mock"]
 
 [tool.pyright]
 reportOptionalMemberAccess = false
 
-
 [tool.pytest.ini_options]
 addopts = "-v -p no:warnings --cov=sqpy --cov-report=html --doctest-modules --ignore=sqpy/__main__.py"
 
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_generics = true
+disallow_untyped_calls = false
+ignore_missing_imports = true
+mypy_path = "sqpy"
+no_implicit_optional = true
+no_implicit_reexport = true
+plugins = "numpy.typing.mypy_plugin"
+show_error_codes = true
+strict = true
+strict_equality = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
