@@ -14,7 +14,7 @@ authors = [
 dependencies = []
 name = "sqpy"
 requires-python = ">=3.8"
-version = "0.0.1"
+version = "0.0.2"
 readme = "README.md"
 description = "A Python package for interactive slurm squeue"
 
@@ -29,20 +29,3 @@ reportOptionalMemberAccess = false
 
 [tool.pytest.ini_options]
 addopts = "-v -p no:warnings --cov=sqpy --cov-report=html --doctest-modules --ignore=sqpy/__main__.py"
-
-[tool.mypy]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_untyped_calls = false
-ignore_missing_imports = true
-mypy_path = "sqpy"
-no_implicit_optional = true
-no_implicit_reexport = true
-plugins = "numpy.typing.mypy_plugin"
-show_error_codes = true
-strict = true
-strict_equality = true
-warn_redundant_casts = true
-warn_return_any = true
-warn_unreachable = true
-warn_unused_configs = true
