@@ -179,6 +179,19 @@ class SlurmViewer:
         self.data: List[Dict[str, str]] = []
         self.top_row = 0
 
+    def check_squeue_installed(self) -> bool:
+        """
+        Checks if the 'squeue' command is installed.
+
+        Returns:
+            bool: True if the 'squeue' command is installed, False otherwise.
+        """
+        try:
+            subprocess.run(["squeue", "--version"], stdout=subprocess.DEVNULL)
+            return True
+        except FileNotFoundError:
+            return False
+
     def fetch_data(self) -> None:
         """
         Fetches data from the 'squeue' command and parses it into a list of dictionaries.
@@ -328,6 +341,8 @@ class SlurmViewer:
             stdscr.clear()
             height, width = stdscr.getmaxyx()
 
+            if not self.check_squeue_installed():
+                raise RuntimeError("The 'squeue' command is not installed.")
             self.fetch_data()
             self.draw_table(stdscr, current_row)
             self.draw_instructions_bar(stdscr)
