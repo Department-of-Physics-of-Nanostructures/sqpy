@@ -3,10 +3,15 @@
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "ms-python.black-formatter"
     },
-    "editor.rulers": [88],
-
+    "editor.rulers": [
+        88
+    ],
     // --no-cov needed so that breakpoints work: https://github.com/microsoft/vscode-python/issues/693
-    "python.testing.pytestArgs": ["--no-cov"],
+    "python.testing.pytestArgs": [
+        "--no-cov"
+    ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoImportCompletions": true,
 }
