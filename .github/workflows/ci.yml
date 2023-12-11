@@ -55,32 +55,32 @@ jobs:
           python -m pip install --upgrade pip
           pip install build
 
-      # - name: Get version from setup.cfg
-      #   run: |
-      #     echo "VERSION=$(python -c 'import configparser; config = configparser.ConfigParser(); config.read("setup.cfg"); print(config["metadata"]["version"])')" >> $GITHUB_ENV
+      - name: Get version from setup.cfg
+        run: |
+          echo "VERSION=$(python -c 'import configparser; config = configparser.ConfigParser(); config.read("setup.cfg"); print(config["metadata"]["version"])')" >> $GITHUB_ENV
 
-      # - name: Get package name from setup.cfg
-      #   run: |
-      #     echo "PACKAGE_NAME=$(python -c 'import configparser; config = configparser.ConfigParser(); config.read("setup.cfg"); print(config["metadata"]["name"])')" >> $GITHUB_ENV
+      - name: Get package name from setup.cfg
+        run: |
+          echo "PACKAGE_NAME=$(python -c 'import configparser; config = configparser.ConfigParser(); config.read("setup.cfg"); print(config["metadata"]["name"])')" >> $GITHUB_ENV
 
-      # - name: Get latest release version from PyPI
-      #   id: latest_release
-      #   uses: fjogeleit/http-request-action@master
-      #   with:
-      #     url: "https://pypi.org/pypi/${{ env.PACKAGE_NAME }}/json"
-      #     method: "GET"
+      - name: Get latest release version from PyPI
+        id: latest_release
+        uses: fjogeleit/http-request-action@master
+        with:
+          url: "https://pypi.org/pypi/${{ env.PACKAGE_NAME }}/json"
+          method: "GET"
 
-      # - name: Extract version from response
-      #   run: |
-      #     VERSION=$(echo '${{ steps.latest_release.outputs.response }}' | jq -r '.info.version')
-      #     echo "Latest PyPI version is $VERSION"
-      #     echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Extract version from response
+        run: |
+          VERSION=$(echo '${{ steps.latest_release.outputs.response }}' | jq -r '.info.version')
+          echo "Latest PyPI version is $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-      # - name: Compare versions and create a new tag if needed
-      #   if: steps.get_version.outputs.version != steps.latest_release.outputs.result
-      #   run: |
-      #     git tag v${{ env.VERSION }}
-      #     git push origin v${{ env.VERSION }}
+      - name: Compare versions and create a new tag if needed
+        if: steps.get_version.outputs.version != steps.latest_release.outputs.result
+        run: |
+          git tag v${{ env.VERSION }}
+          git push origin v${{ env.VERSION }}
 
       - name: Build package
         run: python -m build
