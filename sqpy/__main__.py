@@ -1,18 +1,15 @@
 import curses
-import re
 import subprocess
+import re
+
+from typing import List, Dict
 
 
 class DialogWindow:
     """Base class for dialog windows in curses."""
 
     def __init__(
-        self,
-        stdscr,
-        height: int,
-        width: int,
-        start_y: int,
-        start_x: int
+        self, stdscr: curses.window, height: int, width: int, start_y: int, start_x: int
     ) -> None:
         """Initialize a new dialog window.
 
@@ -31,24 +28,24 @@ class DialogWindow:
         self.win = curses.newwin(height, width, start_y, start_x)
         self.win.box()
 
-    def add_content(self):
+    def add_content(self) -> None:
         """Add content to the window. This method should be overridden."""
         raise NotImplementedError(
             "Method 'add_content' must be implemented in a subclass."
         )
 
-    def show(self):
+    def show(self) -> None:
         """Display the window and wait for user input."""
         self.add_content()
         self.win.refresh()
-        self.win.getch()  
-        del self.win  
+        self.win.getch()
+        del self.win
 
 
 class PopupPrint(DialogWindow):
     """Class for displaying simple popup messages."""
 
-    def __init__(self, stdscr, message):
+    def __init__(self, stdscr: curses.window, message: str) -> None:
         """Initialize a popup print window with a message.
 
         Args:
@@ -63,7 +60,7 @@ class PopupPrint(DialogWindow):
         super().__init__(stdscr, msg_height, msg_width, start_y, start_x)
         self.message = message
 
-    def add_content(self):
+    def add_content(self) -> None:
         """Display the message in the window."""
         self.win.addstr(2, 2, self.message[: self.width - 4])
 
@@ -71,7 +68,7 @@ class PopupPrint(DialogWindow):
 class ScancelDialog(DialogWindow):
     """Class for displaying a confirmation dialog to cancel a job."""
 
-    def __init__(self, stdscr, jobid, jobname):
+    def __init__(self, stdscr: curses.window, jobid: str, jobname: str) -> None:
         """Initialize a scancel dialog window.
 
         Args:
@@ -91,15 +88,15 @@ class ScancelDialog(DialogWindow):
         self.jobname = jobname
 
         self.options = ["Yes", "No"]
-        self.selected_option = 0 
+        self.selected_option = 0
 
-    def add_content(self):
+    def add_content(self) -> None:
         """Add confirmation question to the window."""
         question = f"Are you sure to cancel {self.jobid} - {self.jobname}?"
-        self.win.addstr(2, 2, question[: self.width - 4])  
+        self.win.addstr(2, 2, question[: self.width - 4])
         self._draw_options()
 
-    def _draw_options(self):
+    def _draw_options(self) -> None:
         """Draw options inside the window."""
         y, x = 3, 2
         for i, option in enumerate(self.options):
@@ -107,15 +104,19 @@ class ScancelDialog(DialogWindow):
             self.win.addstr(y, x, option, mode)
             x += len(option) + 2
 
-    def navigate(self, direction):
-        """Navigate through options."""
+    def navigate(self, direction: str) -> None:
+        """Navigate through options.
+
+        Args:
+            direction (str): The direction of navigation ('left' or 'right').
+        """
         if direction == "left" and self.selected_option > 0:
             self.selected_option -= 1
         elif direction == "right" and self.selected_option < len(self.options) - 1:
             self.selected_option += 1
         self._draw_options()
 
-    def execute_scancel(self):
+    def execute_scancel(self) -> bool:
         """Execute the scancel command for the selected job."""
         PopupPrint(self.stdscr, "Job canceled").show()
         try:
@@ -125,7 +126,7 @@ class ScancelDialog(DialogWindow):
             print(f"Error cancelling job {self.jobid}: {e}")
             return False
 
-    def show(self):
+    def show(self) -> None:
         """Show the dialog and handle user input."""
         self.win.keypad(True)
         self.add_content()
@@ -147,7 +148,7 @@ class ScancelDialog(DialogWindow):
             ]:  # Enter (some systems use 10 or 13 for Enter)
                 if self.selected_option == 0:  # If "Yes" is selected
                     self.execute_scancel()
-                return self.selected_option == 0
+                # return self.selected_option == 0
 
             self.win.box()
             self.win.refresh()
@@ -171,19 +172,16 @@ class SlurmViewer:
         run(stdscr): Runs the main loop of the application.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initializes a new instance of the class.
         """
-        self.data = []
+        self.data: List[Dict[str, str]] = []
         self.top_row = 0
 
-    def fetch_data(self):
+    def fetch_data(self) -> None:
         """
         Fetches data from the 'squeue' command and parses it into a list of dictionaries.
-
-        Returns:
-            None
         """
         command = [
             "squeue",
@@ -205,7 +203,7 @@ class SlurmViewer:
 
         self.data = parsed_data
 
-    def draw_instructions_bar(self, stdscr):
+    def draw_instructions_bar(self, stdscr: curses.window) -> None:
         """
         Draw the instructions bar at the bottom of the screen.
 
@@ -219,16 +217,18 @@ class SlurmViewer:
         height, width = stdscr.getmaxyx()
         stdscr.addstr(height - 1, 0, instructions[:width], curses.A_REVERSE)
 
-    def calculate_column_widths(self, headers, total_width):
+    def calculate_column_widths(
+        self, headers: List[str], total_width: int
+    ) -> Dict[str, int]:
         """
         Calculates the minimum widths for each column based on the headers and data.
 
         Args:
-            headers (list): The list of column headers.
+            headers (List[str]): The list of column headers.
             total_width (int): The total width available for the columns.
 
         Returns:
-            dict: A dictionary mapping each header to its corresponding minimum width.
+            Dict[str, int]: A dictionary mapping each header to its corresponding minimum width.
         """
         min_widths = {
             header: max(len(header), max(len(str(row[header])) for row in self.data))
@@ -237,7 +237,7 @@ class SlurmViewer:
         used_space = sum(min_widths.values())
         extra_space = max(
             0, total_width - used_space - len(headers) - 1
-        )  # Dodatkowe miejsce na spacje między kolumnami
+        )  # Additional space for spaces between columns
         total_min_width = sum(min_widths.values())
         for header in headers:
             proportion = min_widths[header] / total_min_width
@@ -245,7 +245,7 @@ class SlurmViewer:
 
         return min_widths
 
-    def draw_table(self, stdscr, current_row):
+    def draw_table(self, stdscr: curses.window, current_row: int) -> None:
         """
         Draw a table on the given curses window.
 
@@ -270,19 +270,17 @@ class SlurmViewer:
             stdscr.addstr(0, x_pos, header.ljust(column_widths[header]))
             x_pos += column_widths[header] + 1
 
-        for i, row in enumerate(self.data[self.top_row:self.top_row+height-2]):
+        for i, row in enumerate(self.data[self.top_row : self.top_row + height - 2]):
             x_pos = 0
             row_text = "".join(
                 row[header].ljust(column_widths[header]) for header in headers
             )
             if i + self.top_row == current_row:
-                stdscr.addstr(
-                    i + 1, 0, row_text[: width - 1], curses.color_pair(3)
-                )
+                stdscr.addstr(i + 1, 0, row_text[: width - 1], curses.color_pair(3))
             else:
                 stdscr.addstr(i + 1, 0, row_text[: width - 1])
 
-    def show_message(self, stdscr, message):
+    def show_message(self, stdscr: curses.window, message: str) -> None:
         """
         Display a message in a centered box on the screen.
 
@@ -308,7 +306,7 @@ class SlurmViewer:
 
         del win
 
-    def run(self, stdscr):
+    def run(self, stdscr: curses.window) -> None:
         """
         Run the main loop of the application.
 
@@ -329,7 +327,7 @@ class SlurmViewer:
         while True:
             stdscr.clear()
             height, width = stdscr.getmaxyx()
- 
+
             self.fetch_data()
             self.draw_table(stdscr, current_row)
             self.draw_instructions_bar(stdscr)
@@ -366,6 +364,10 @@ class SlurmViewer:
                         ScancelDialog(stdscr, jobid, jobname).show()
 
 
-if __name__ == "__main__":
+def entrypoint() -> None:
     viewer = SlurmViewer()
     curses.wrapper(viewer.run)
+
+
+if __name__ == "__main__":
+    entrypoint()
