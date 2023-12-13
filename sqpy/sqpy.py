@@ -7,12 +7,11 @@ from .popup_print import PopupPrint
 from .scancel_dialog import ScancelDialog
 
 
-class SlurmViewer:
+class Sqpy:
     """
     A class for viewing and interacting with Slurm job information.
 
     Attributes:
-        data (list): A list of dictionaries representing the job data.
         top_row (int): The index of the top row to display in the table.
 
     Methods:
@@ -29,7 +28,7 @@ class SlurmViewer:
         """
         Initializes a new instance of the class.
         """
-        self.data: List[Dict[str, str]] = []
+        self.data = []
         self.top_row = 0
 
     def check_squeue_installed(self) -> bool:
@@ -60,7 +59,7 @@ class SlurmViewer:
         lines = output.strip().split("\n")
         headers = re.split(r"\s+", lines[0].strip())
 
-        parsed_data = []
+        parsed_data: List[Dict[str, str]] = []
         for line in lines[1:]:
             values = re.split(r"\s+", line.strip())
             if len(values) == len(headers):
@@ -126,7 +125,7 @@ class SlurmViewer:
             return
 
         height, width = stdscr.getmaxyx()
-        headers = self.data[0].keys()
+        headers = list(self.data[0].keys())
 
         column_widths = self.calculate_column_widths(headers, width)
 
@@ -184,7 +183,7 @@ class SlurmViewer:
         """
         curses.start_color()
         curses.use_default_colors()
-        for i in range(0, curses.COLORS):
+        for _ in range(0, curses.COLORS):
             curses.init_pair(3, 1, 0)
 
         current_row = 0
@@ -192,7 +191,7 @@ class SlurmViewer:
 
         while True:
             stdscr.clear()
-            height, width = stdscr.getmaxyx()
+            height, _ = stdscr.getmaxyx()
 
             if not self.check_squeue_installed():
                 raise RuntimeError("The 'squeue' command is not installed.")
@@ -230,12 +229,3 @@ class SlurmViewer:
                         # PopupPrint(stdscr, "Ctrl+K Detected").show()
                         # Fix: Modify the comment to start with '# '
                         ScancelDialog(stdscr, jobid, jobname).show()
-
-
-def entrypoint() -> None:
-    viewer = SlurmViewer()
-    curses.wrapper(viewer.run)
-
-
-if __name__ == "__main__":
-    entrypoint()

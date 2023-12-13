@@ -1,3 +1,7 @@
-# from .main import SlurmViewer
+from .sqpy import Sqpy
+import curses
 
-# __all__ = ["SlurmViewer"]
+
+def entrypoint() -> None:
+    viewer = Sqpy()
+    curses.wrapper(viewer.run)
