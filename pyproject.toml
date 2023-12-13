@@ -19,7 +19,7 @@ readme = "README.md"
 description = "A Python package for interactive slurm squeue"
 
 [project.scripts]
-sqpy = "sqpy.__main__:entrypoint"
+sqpy = "sqpy.main:entrypoint"
 
 [project.optional-dependencies]
 dev = ["pip-tools", "pre-commit", "pytest", "pytest-cov", "pytest-mock"]
