@@ -1,13 +1,12 @@
 import pytest
 from unittest.mock import patch, MagicMock
 
-from sympy import im
 from sqpy.scancel_dialog import ScancelDialog
 import subprocess
 
 
 class MockCursesWindow:
-    def __init__(self, h, w, y, x):
+    def __init__(self, h: int, w: int, y: int, x: int):
         self.h = h
         self.w = w
         self.y = y
@@ -23,7 +22,7 @@ class MockCursesWindow:
     def getch(self):
         return 0
 
-    def addstr(self, y, x, string):
+    def addstr(self, y: int, x: int, string: str):
         pass
 
     def getmaxyx(self):
@@ -33,13 +32,15 @@ class MockCursesWindow:
 @pytest.fixture
 def mock_stdscr():
     mock = MagicMock(spec=MockCursesWindow)
-    mock.getmaxyx.return_value = (24, 80)
+    mock.getmaxyx.return_value = (24, 80)  # type: ignore
     return mock
 
 
 @patch("sqpy.scancel_dialog.PopupPrint")
 @patch("curses.newwin", return_value=MockCursesWindow(24, 80, 0, 0))
-def test_scancel_dialog_init(mock_newwin, mock_popupprint, mock_stdscr):
+def test_scancel_dialog_init(
+    mock_newwin: MagicMock, mock_popupprint: MagicMock, mock_stdscr: MagicMock
+):
     jobid = "123"
     jobname = "TestJob"
     dialog = ScancelDialog(mock_stdscr, jobid, jobname)
@@ -63,7 +64,11 @@ def test_scancel_dialog_init(mock_newwin, mock_popupprint, mock_stdscr):
 @patch("sqpy.scancel_dialog.PopupPrint")
 @patch("sqpy.scancel_dialog.subprocess.run")
 def test_execute_scancel(
-    mock_run, mock_popupprint, mock_newwin, mock_initscr, mock_stdscr
+    mock_run: MagicMock,
+    mock_popupprint: MagicMock,
+    mock_newwin: MagicMock,
+    mock_initscr: MagicMock,
+    mock_stdscr: MagicMock,
 ):
     jobid = "123"
     jobname = "TestJob"

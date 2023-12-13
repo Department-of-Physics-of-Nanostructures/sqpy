@@ -31,7 +31,7 @@ class MockCursesWindow:
 @pytest.fixture
 def mock_stdscr() -> MockCursesWindow:
     mock: MockCursesWindow = MagicMock(spec=MockCursesWindow)
-    mock.getmaxyx.return_value = (24, 80)
+    mock.getmaxyx.return_value = (24, 80)  # type: ignore
     return mock
 
 
