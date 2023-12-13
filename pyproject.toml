@@ -28,4 +28,4 @@ dev = ["pip-tools", "pre-commit", "pytest", "pytest-cov", "pytest-mock"]
 reportOptionalMemberAccess = false
 
 [tool.pytest.ini_options]
-addopts = "-v -p no:warnings --cov=sqpy --cov-report=html --doctest-modules --ignore=sqpy/__main__.py"
+addopts = "-v -p no:warnings --cov=sqpy --cov-report=term --doctest-modules"
